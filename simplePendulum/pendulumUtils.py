@@ -13,7 +13,7 @@ def testPrint(textToPrint):
     print(textToPrint)
 
 
-def runPendulumSimulation(mass, damping, torque_limit):
+def runPendulumSimulation(mass, damping, max_torque):
     '''
     run pendulum simulation function
     '''
@@ -26,18 +26,19 @@ def runPendulumSimulation(mass, damping, torque_limit):
     params[2] = damping
     print(plant.get_mutable_parameters(context))
 
-    N = 21
+    N = 50
     max_dt = 0.5
-    # max_tf = N * max_dt
+    max_tf = N * max_dt
     dircol = DirectCollocation(plant,
                                context,
                                num_time_samples=N,
                                minimum_timestep=0.05,
-                               maximum_timestep=max_dt)
+                               maximum_timestep=max_tf)
 
     dircol.AddEqualTimeIntervalsConstraints()
 
-    torque_limit = torque_limit  # N*m.
+    torque_limit = max_torque  # N*m.
+    print(torque_limit)
     u = dircol.input()
     dircol.AddConstraintToAllKnotPoints(-torque_limit <= u[0])
     dircol.AddConstraintToAllKnotPoints(u[0] <= torque_limit)
@@ -55,8 +56,11 @@ def runPendulumSimulation(mass, damping, torque_limit):
     dircol.AddBoundingBoxConstraint(final_state.get_value(),
                                     final_state.get_value(), dircol.final_state())
 
-    R = 10  # Cost on input "effort".
+    R = 1  # Cost on input "effort".
     dircol.AddRunningCost(R * u[0]**2)
+
+    Q = 1
+    dircol.AddRunningCost(Q * dircol.time()**2)
 
     initial_x_trajectory = PiecewisePolynomial.FirstOrderHold(
         [0., 4.], [initial_state.get_value(),
