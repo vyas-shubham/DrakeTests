@@ -29,6 +29,7 @@ Joint Acutator Torque Limit = 5Nm
         <color rgba="1 0 0 1.0"/>      
     </material>
 
+
     <!-- Base S/C With robot arm Description -->
 
     <link name="ChaserSC">
@@ -158,6 +159,11 @@ Joint Acutator Torque Limit = 5Nm
     </transmission>
 
     <link name="link_ee">
+        <inertial>
+            <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+            <mass value="0.1"/>
+            <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+        </inertial>
         <visual>
             <origin rpy="1.5708 0 0" xyz="0 0 0"/>
             <geometry>
